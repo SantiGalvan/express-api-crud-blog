@@ -155,9 +155,6 @@ const destroy = (req, res) => {
 
     const { slug } = req.params;
     const deletePost = posts.find(p => p.slug === slug);
-    if (!deletePost) {
-        return res.status(404).send(`Non esiste un post con slug ${slug}`);
-    }
 
     deleteFile(deletePost.image);
     updatePosts(posts.filter(p => p.slug !== deletePost.slug));
