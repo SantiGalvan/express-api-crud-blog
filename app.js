@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const postsRouter = require("./routers/posts.js");
+const errors = require("errors");
 
 app.use(express.static('./public'));
 
@@ -12,6 +13,9 @@ app.get('/', (req, res) => {
 });
 
 app.use('/posts', postsRouter);
+
+// Middleware degli errori
+app.use(errors);
 
 //Avvio del server
 app.listen(3000, () => {
