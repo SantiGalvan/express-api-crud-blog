@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
-const posts = require("../database/db.js");
+let posts = require("../database/db.json");
+const makeSlug = require("@playpickup/sluggy");
 
 const index = (req, res) => {
     res.format({
@@ -92,9 +93,68 @@ const download = (req, res) => {
     if (fs.existsSync(filePath)) res.download(filePath);
 };
 
+const updatePosts = (newPosts) => {
+    const filePath = path.join(__dirname, '../database/db.json');
+    fs.writeFileSync(filePath, JSON.stringify(newPosts));
+    posts = newPosts;
+}
+
+const deleteFile = (fileName) => {
+    const filePath = path.join(__dirname, '../public', fileName);
+    fs.unlinkSync(filePath);
+}
+
+const updateSlug = (title) => {
+    const baseSlug = makeSlug(title);
+    const slugs = posts.map(p => p.slug);
+    let counter = 1;
+    let slug = baseSlug;
+    while (slugs.includes(slug)) {
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+    }
+    return slug;
+
+}
+
+const store = (req, res) => {
+    const { title, content, tags } = req.body;
+    if (!title || title.replaceAll('/', '').trim().length === 0 || !content || !tags) {
+        req.file?.filename && deleteFile(req.file.filename);
+        return res.status(400).send('Some data is missing.');
+    } else if (!req.file || !req.file.mimetype.includes('image')) {
+        req.file?.filename && deleteFile(req.file.filename);
+        return res.status(400).send('Image is missing or it is not an image file.');
+    }
+
+    const slug = updateSlug(title);
+
+    const newPost = {
+        title,
+        content,
+        tags,
+        image: req.file.filename,
+        slug
+    }
+
+    updatePosts([...posts, newPost]);
+
+    res.format({
+        html: () => {
+            res.redirect(`http://${req.headers.host}/posts/${newPost.slug}`);
+        },
+        json: () => {
+            res.json({
+                data: newPost,
+            });
+        }
+    });
+}
+
 module.exports = {
     index,
     show,
     create,
-    download
+    download,
+    store
 }
