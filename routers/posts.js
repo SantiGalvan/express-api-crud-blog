@@ -8,6 +8,7 @@ const uploader = multer({ dest: "public/imgs/posts" });
 router.get("/", postsController.index);
 router.post("/", uploader.single("image"), postsController.store);
 router.get("/create", postsController.create);
+router.delete("/:slug", postsController.destroy);
 router.get("/:slug", postsController.show);
 router.get("/:slug/download", postsController.download);
 

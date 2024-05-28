@@ -100,7 +100,7 @@ const updatePosts = (newPosts) => {
 }
 
 const deleteFile = (fileName) => {
-    const filePath = path.join(__dirname, '../public', fileName);
+    const filePath = path.join(__dirname, '../public/imgs/posts', fileName);
     fs.unlinkSync(filePath);
 }
 
@@ -151,10 +151,25 @@ const store = (req, res) => {
     });
 }
 
+const destroy = (req, res) => {
+
+    const { slug } = req.params;
+    const deletePost = posts.find(p => p.slug === slug);
+    if (!deletePost) {
+        return res.status(404).send(`Non esiste un post con slug ${slug}`);
+    }
+
+    deleteFile(deletePost.image);
+    updatePosts(posts.filter(p => p.slug !== deletePost.slug));
+
+    res.send(`Post con slug ${slug} eliminata con successo.`);
+}
+
 module.exports = {
     index,
     show,
     create,
     download,
-    store
+    store,
+    destroy
 }
