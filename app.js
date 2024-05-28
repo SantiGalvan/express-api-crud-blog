@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const postsRouter = require("./routers/posts.js");
-const errors = require("errors");
+const errors = require("./middlewares/errors.js");
 
 app.use(express.static('./public'));
 
