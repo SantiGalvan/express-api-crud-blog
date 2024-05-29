@@ -6,6 +6,8 @@ const deleteError = require("../middlewares/deleteError.js");
 const multer = require("multer");
 const uploader = multer({ dest: "public/imgs/posts" });
 
+router.use(express.urlencoded({ extended: true }));
+
 router.get("/", postsController.index);
 router.post("/", uploader.single("image"), postsController.store);
 router.get("/create", postsController.create);
